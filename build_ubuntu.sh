@@ -1,5 +1,5 @@
 #! /bin/bash
-# Author: Codemao Junchao
+# Author: Codemao Junchao Zhang
 # Usage: Build the custom ubuntu iso
 # structure:
 #    prepare_chroot
@@ -13,14 +13,7 @@ Type=$1;
 CONFIG_FILE='./custom_ubuntu_iso.config'
 ISO_NAME='ubuntu-16.04-desktop-amd64-custom.iso'
 IMAGE_NAME='Codemao-ubuntu-0.1'
-PROJECT_PATH='/home/dev/dev/ubuntu/livecdtmp'
-SCRIPT_PATH=''
-
-# Load all of the script files
-for script_file (${SCRIPT_PATH}); do
-  [ -fx "${custom_config_file}" ]
-  source $script_file
-done
+PROJECT_PATH='/home/dev/dev/ubuntu/livecdtmp/build-custom-ubuntu'
 
 mount_iso() {
     echo "mounting iso..."
@@ -33,9 +26,8 @@ mount_iso() {
 }
 
 get_into_chroot() {
-    echo "starting chroot..."
-    sudo cp start_chroot.sh ${PROJECT_PATH}/edit/root/
-    sudo cp end_chroot.sh ${PROJECT_PATH}/edit/root/
+    echo "geting into chroot..."
+    sudo cp -r ${PROJECT_PATH}/chroot_scripts ${PROJECT_PATH}/edit/root/
     sudo chroot ${PROJECT_PATH}/edit /bin/bash 
 }
 
@@ -46,9 +38,11 @@ customize_in_chroot() {
 
 prepare() {
     echo "cleaning before make chroot environment..."
+    sudo umount ${PROJECT_PATH}/mnt
     sudo rm -rf mnt
     sudo rm -rf extract-cd
     sudo rm -rf edit
+    mount_iso
 }
 
 cleanup() {
@@ -77,11 +71,10 @@ make_iso() {
 
 regenerate_manifest() {
     echo "  regenerating mainfest..."
-    chmod +w extract-cd/casper/filesystem.manifest
-    sudo su
-    chroot edit dpkg-query -W --showformat='${Package} ${Version}\n' > extract-cd/casper/filesystem.manifest
-    exit
+    sudo chmod +w extract-cd/casper/filesystem.manifest
+    sudo chroot edit dpkg-query -W --showformat='${Package} ${Version}\n' > extract-cd/casper/filesystem.manifest
     sudo cp extract-cd/casper/filesystem.manifest extract-cd/casper/filesystem.manifest-desktop
+    echo "  sdsdas"
     sudo sed -i '/ubiquity/d' extract-cd/casper/filesystem.manifest-desktop
     sudo sed -i '/casper/d' extract-cd/casper/filesystem.manifest-desktop
 }
@@ -111,24 +104,36 @@ create_iso() {
     sudo mkisofs -D -r -V "$IMAGE_NAME" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o ../$ISO_NAME .
 }
 
-make_usb() {
-
+burn_usb() {
+    echo "  burning to usb..."
+    sudo -H mkusb ubuntu-16.04-desktop-amd64-custom.iso
 }
 
-if [-z "$Type"]; then
-    prepare
-    start_chroot
+if [ -z "${Type}" ]; then
+    get_into_chroot
     customize_in_chroot
     cleanup
     make_iso
-    make_usb
+    burn_usb
 fi
 
-if ["$Type" = "chroot"]; then
-    start_chroot
+if [ "${Type}" = "all" ]; then
+    prepare
+    get_into_chroot
+    customize_in_chroot
+    cleanup
+    make_iso
+    burn_usb
 fi
 
-if ["$Type" = "iso"]; then
+
+
+
+if [ "$Type" = "chroot" ]; then
+    get_into_chroot
+fi
+
+if [ "$Type" = "iso" ]; then
     make_iso
 fi
 
