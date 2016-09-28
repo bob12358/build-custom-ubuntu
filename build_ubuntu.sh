@@ -112,7 +112,13 @@ create_iso() {
 burn_usb() {
     custom_echo "  burning to usb..."
     isohybrid ${PROJECT_PATH}/${ISO_NAME}
-    sudo dd if=${PROJECT_PATH}/${ISO_NAME} of=/dev/sde bs=4k
+    lsblk -S |awk 'NR>1 {printf "%s %s %s\n",NR-1,$1,$5}'
+    read -p "Select the disk to burn:" DISKNUM
+    DISKNUM=$[$DISKNUM+1]
+    DISK=$(lsblk -S |awk -v disknum=$DISKNUM 'NR==disknum {print $1}')
+    custom_echo "  buring,please wait"
+    sudo dd if=${PROJECT_PATH}/${ISO_NAME} of=/dev/$DISK bs=4k
+    custom_echo "buring usb complete..."
 }
 
 if [ -z "${Type}" ]; then
