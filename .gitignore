@@ -3,3 +3,5 @@ ubuntu-16.04.1-desktop-amd64.iso
 edit
 extract-cd
 mnt
+chroot_scripts/mc
+chroot_scripts/OSXtheme/

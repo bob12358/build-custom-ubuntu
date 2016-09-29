@@ -32,6 +32,8 @@ mount_iso() {
 
 get_into_chroot() {
     custom_echo "geting into chroot..."
+    sudo cp /etc/apt/sources.list edit/etc/apt/
+    sudo cp /etc/resolv.conf edit/etc/
     sudo cp -r ${PROJECT_PATH}/chroot_scripts ${PROJECT_PATH}/edit/root/
     sudo chroot ${PROJECT_PATH}/edit /bin/bash 
 }
