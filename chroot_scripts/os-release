@@ -1,0 +1,10 @@
+NAME="Codemao"
+VERSION="0.00.1"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Codemao 0.00.1"
+VERSION_ID="0.00.1"
+HOME_URL="https://www.codemao.cn/"
+SUPPORT_URL="https://www.codemao.cn/"
+BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
+UBUNTU_CODENAME=codemao

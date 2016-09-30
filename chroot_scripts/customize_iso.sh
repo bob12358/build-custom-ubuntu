@@ -7,11 +7,10 @@ sudo add-apt-repository ppa:fcitx-team/nightly
 sudo add-apt-repository ppa:ricotz/docky
 sudo apt-get update
 
-sudo apt-get -y install aptitude   
+sudo apt-get -y install aptitude
 sudo apt-get -y install git
-# install plank
-sudo apt-get -y install plank --allow-unauthenticated
-
+# install docky
+sudo apt-get -y install docky --allow-unauthenticated
 
 # install fcitx
 sudo apt-get -y remove ibus
@@ -26,27 +25,29 @@ sudo apt-get -y purge unity-webapps-common
 sudo apt-get -y remove firefox
 
 # install MC
+#sudo apt-get install openjdk-8-jdk
 cp -r $CHROOT_SCRIPTS_PATH/mc /opt/
 
 # install theme
-cp -r $CHROOT_SCRIPTS_PATH/OSXtheme/arc-theme /usr/share/themes/
-cd $CHROOT_SCRIPTS_PATH/OSXtheme/arc-theme && make install
+rm -rf /usr/share/themes/Ambiance/
+cp -r $CHROOT_SCRIPTS_PATH/OSXtheme/Ambiance /usr/share/themes/
 
 # install icon theme
-rm -rf /usr/share/icons/default
-cp -r $CHROOT_SCRIPTS_PATH/OSXtheme/icons /usr/share/icons/default
+#rm -rf /usr/share/icons/ubuntu-mono-dark/
+#mv $CHROOT_SCRIPTS_PATH/OSXtheme/icons /usr/share/icons/ubuntu-mono-dark/
 
 # Change background
-cp -r $CHROOT_SCRIPTS_PATH/backgrounds/* /usr/share/backgrounds/
-cp -r $CHROOT_SCRIPTS_PATH/com.canonical.unity-greeter.gschema.xml /usr/share/glib-2.0/schemas/
-cp -r $CHROOT_SCRIPTS_PATH/ubuntu-wallpapers.xml /usr/share/glib-2.0/schemas/ /usr/share/gnome-background-properties/
+#cp -r $CHROOT_SCRIPTS_PATH/backgrounds/* /usr/share/backgrounds/
+#cp -r $CHROOT_SCRIPTS_PATH/com.canonical.unity-greeter.gschema.xml /usr/share/glib-2.0/schemas/
+#cp -r $CHROOT_SCRIPTS_PATH/ubuntu-wallpapers.xml /usr/share/glib-2.0/schemas/ /usr/share/gnome-background-properties/
 
 # Change GTK-Theme
 # Change Icon-Theme
-cp -r $CHROOT_SCRIPTS_PATH/org.gnome.desktop.interface.gschema.xml /usr/share/glib-2.0/schemas/
-cp -r $CHROOT_SCRIPTS_PATH/org.gnome.desktop.wm.preferences.gschema.xml /usr/share/glib-2.0/schemas/
 
-glib-compile-schemas /usr/share/glib-2.0/schemas
+# Hide launcher
+#cp -r $CHROOT_SCRIPTS_PATH/org.compiz.unityshell.gschema.xml /usr/share/glib-2.0/schemas/
+
+#glib-compile-schemas /usr/share/glib-2.0/schemas
 
 # Install zh-hans language support
 sudo apt-get -y install `check-language-support -l zh-hans`
@@ -61,3 +62,5 @@ mkdir -p /usr/share/sogou-qimpanel/
 sudo cp -r $CHROOT_SCRIPTS_PATH/sougou/* /usr/share/sogou-qimpanel/skin
 
 sudo cp -r $CHROOT_SCRIPTS_PATH/*release /etc/
+
+#sudo apt-get install -f install

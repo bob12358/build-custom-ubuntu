@@ -30,17 +30,22 @@ mount_iso() {
     sudo mv squashfs-root edit
 }
 
-get_into_chroot() {
+prepare_get_into_chroot() {
     custom_echo "geting into chroot..."
     sudo cp /etc/apt/sources.list edit/etc/apt/
     sudo cp /etc/resolv.conf edit/etc/
+    sudo mount -o bind /run/ edit/run/
+    sudo mount -o bind /dev/ edit/dev/
     sudo cp -r ${PROJECT_PATH}/chroot_scripts ${PROJECT_PATH}/edit/root/
+}
+
+get_into_chroot() {
     sudo chroot ${PROJECT_PATH}/edit /bin/bash 
 }
 
 customize_in_chroot() {
     custom_echo "customize in chroot..."
-    sudo chroot ${PROJECT_PATH}/edit /root/chroot_scripts/customize_iso.sh
+    #sudo chroot ${PROJECT_PATH}/edit /root/chroot_scripts/customize_iso.sh
 }
 
 prepare() {
@@ -55,7 +60,7 @@ prepare() {
 }
 
 cleanup() {
-    custom_echo "cleaning before make iso"
+    custom_echo "cleaning after making iso"
     cleanup_in_chroot
     cleanup_outside
 }
@@ -67,6 +72,7 @@ cleanup_in_chroot() {
 
 cleanup_outside() {
     custom_echo "cleaning up outside..."
+    aptitude clean
     sudo umount edit/dev
 }
 
@@ -113,7 +119,7 @@ create_iso() {
 
 burn_usb() {
     custom_echo "  burning to usb..."
-    isohybrid ${PROJECT_PATH}/${ISO_NAME}
+    #isohybrid ${PROJECT_PATH}/${ISO_NAME}
     lsblk -S |awk 'NR>1 {printf "%s %s %s\n",NR-1,$1,$5}'
     read -p "Select the disk to burn:" DISKNUM
     DISKNUM=$[$DISKNUM+1]
@@ -124,7 +130,7 @@ burn_usb() {
 }
 
 if [ -z "${Type}" ]; then
-    get_into_chroot
+    before_get_into_chroot
     customize_in_chroot
     cleanup
     make_iso
@@ -133,7 +139,7 @@ fi
 
 if [ "${Type}" = "all" ]; then
     prepare
-    get_into_chroot
+    prepare_get_into_chroot
     customize_in_chroot
     cleanup
     make_iso
@@ -141,6 +147,7 @@ if [ "${Type}" = "all" ]; then
 fi
 
 if [ "$Type" = "chroot" ]; then
+    prepare_get_into_chroot
     get_into_chroot
 fi
 
