@@ -2,7 +2,12 @@
 CHROOT_SCRIPTS_PATH='/root/chroot_scripts'
 DEB_PATH='$CHROOT_SCRIPTS_PATH/deb'
 
+custom_echo() {
+    echo -e "\e[1;31m $1 \e[0m"
+}
+
 # Add apt repository
+custom_echo "adding repository"
 sudo add-apt-repository ppa:fcitx-team/nightly
 sudo add-apt-repository ppa:ricotz/docky
 sudo apt-get update
@@ -10,36 +15,42 @@ sudo apt-get update
 sudo apt-get -y install aptitude
 sudo apt-get -y install git
 # install docky
+custom_echo "instaling docky"
 sudo apt-get -y install docky --allow-unauthenticated
 
 # install fcitx
+custom_echo "instaling fcitx"
 sudo apt-get -y remove ibus
 sudo apt-get -y remove scim
-sudo apt-get autoremove
 sudo apt-get -y install fcitx --allow-unauthenticated
 sudo im-switch -s fcitx -z default
 
 # delete amazon
-sudo apt-get -y purge unity-webapps-common
+custom_echo "removing amazon"
+sudo apt-get -y remove unity-webapps-common
 # delete firefox
+custom_echo "removing firefox"
 sudo apt-get -y remove firefox
 
 # install MC
-#sudo apt-get install openjdk-8-jdk
+custom_echo "instaling mc"
+sudo apt-get install -y  openjdk-8-jdk
 cp -r $CHROOT_SCRIPTS_PATH/mc /opt/
 
 # install theme
-rm -rf /usr/share/themes/Ambiance/
-cp -r $CHROOT_SCRIPTS_PATH/OSXtheme/Ambiance /usr/share/themes/
+custom_echo "instaling theme"
+rm -rf /usr/share/themes/Ambiance
+cp -r $CHROOT_SCRIPTS_PATH/OSXTheme/Ambiance /usr/share/themes/
 
 # install icon theme
 #rm -rf /usr/share/icons/ubuntu-mono-dark/
 #mv $CHROOT_SCRIPTS_PATH/OSXtheme/icons /usr/share/icons/ubuntu-mono-dark/
 
 # Change background
-#cp -r $CHROOT_SCRIPTS_PATH/backgrounds/* /usr/share/backgrounds/
-#cp -r $CHROOT_SCRIPTS_PATH/com.canonical.unity-greeter.gschema.xml /usr/share/glib-2.0/schemas/
-#cp -r $CHROOT_SCRIPTS_PATH/ubuntu-wallpapers.xml /usr/share/glib-2.0/schemas/ /usr/share/gnome-background-properties/
+custom_echo "changing background"
+cp -r $CHROOT_SCRIPTS_PATH/backgrounds/* /usr/share/backgrounds/
+cp -r $CHROOT_SCRIPTS_PATH/com.canonical.unity-greeter.gschema.xml /usr/share/glib-2.0/schemas/
+cp -r $CHROOT_SCRIPTS_PATH/ubuntu-wallpapers.xml /usr/share/glib-2.0/schemas/ /usr/share/gnome-background-properties/
 
 # Change GTK-Theme
 # Change Icon-Theme
@@ -53,6 +64,8 @@ cp -r $CHROOT_SCRIPTS_PATH/OSXtheme/Ambiance /usr/share/themes/
 sudo apt-get -y install `check-language-support -l zh-hans`
 sudo cp $CHROOT_SCRIPTS_PATH/locale /etc/default/locale
 
+# Install debs
+custom_echo "installing debs"
 for deb in $CHROOT_SCRIPTS_PATH/deb/*.deb; do
     sudo dpkg -i $deb
 done

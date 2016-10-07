@@ -14,28 +14,27 @@ CONFIG_FILE='./custom_ubuntu_iso.config'
 ORIGIN_ISO_FILE='ubuntu-16.04.1-desktop-amd64.iso'
 ISO_NAME='ubuntu-16.04-desktop-amd64-custom.iso'
 IMAGE_NAME='Codemao-ubuntu-0.1'
-PROJECT_PATH='/home/dev/dev/ubuntu/livecdtmp/build-custom-ubuntu'
+PROJECT_PATH='/home/chao/livecdtmp/build-custom-ubuntu'
 
 custom_echo() {
     echo -e "\e[1;31m $1 \e[0m"
 }
-
 mount_iso() {
     custom_echo "mounting iso..."
     mkdir mnt
     mkdir extract-cd
-    sudo mount ${ORIGIN_ISO_FILE} ${PROJECT_PATH}/mnt
-    sudo rsync --exclude=/casper/filesystem.squashfs -a ${PROJECT_PATH}/mnt/ extract-cd
+    sudo mount -o loop ${ORIGIN_ISO_FILE} mnt
+    sudo rsync --exclude=/casper/filesystem.squashfs -a mnt/ extract-cd
     sudo unsquashfs mnt/casper/filesystem.squashfs
-    sudo mv squashfs-root edit
+    sudo mv squashfs-root/ edit
 }
 
 prepare_get_into_chroot() {
     custom_echo "geting into chroot..."
     sudo cp /etc/apt/sources.list edit/etc/apt/
-    sudo cp /etc/resolv.conf edit/etc/
-    sudo mount -o bind /run/ edit/run/
-    sudo mount -o bind /dev/ edit/dev/
+    #sudo cp /etc/resolv.conf edit/etc/
+    #sudo mount -o bind /run/ edit/run/
+    #sudo mount -o bind /dev/ edit/dev/
     sudo cp -r ${PROJECT_PATH}/chroot_scripts ${PROJECT_PATH}/edit/root/
 }
 
@@ -45,18 +44,21 @@ get_into_chroot() {
 
 customize_in_chroot() {
     custom_echo "customize in chroot..."
-    #sudo chroot ${PROJECT_PATH}/edit /root/chroot_scripts/customize_iso.sh
+    sudo chroot ${PROJECT_PATH}/edit /root/chroot_scripts/customize_iso.sh
 }
 
 prepare() {
     custom_echo "cleaning before make chroot environment..."
+    sudo umount mnt
     sudo umount ${PROJECT_PATH}/mnt
+    sudo umount edit/dev
+    sudo umount edit/run
+    sudo umount edit/run
     sudo rm -rf ${PROJECT_PATH}/${ISO_NAME}
     custom_echo "still execute, don't exit"
     sudo rm -rf mnt
     sudo rm -rf extract-cd
     sudo rm -rf edit
-    mount_iso
 }
 
 cleanup() {
@@ -97,6 +99,7 @@ regenerate_manifest() {
 compress_filesystem() {
     custom_echo "  compressing filesystem..."
     sudo rm extract-cd/casper/filesystem.squashfs
+    sudo mksquashfs edit extract-cd/casper/filesystem.squashfs -nolzma
     sudo mksquashfs edit extract-cd/casper/filesystem.squashfs -b 1048576
 }
 
@@ -117,8 +120,7 @@ create_iso() {
     sudo mkisofs -D -r -V "$IMAGE_NAME" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o ../$ISO_NAME .
 }
 
-burn_usb() {
-    custom_echo "  burning to usb..."
+burn_usb() { custom_echo "  burning to usb..."
     #isohybrid ${PROJECT_PATH}/${ISO_NAME}
     lsblk -S |awk 'NR>1 {printf "%s %s %s\n",NR-1,$1,$5}'
     read -p "Select the disk to burn:" DISKNUM
@@ -130,7 +132,7 @@ burn_usb() {
 }
 
 if [ -z "${Type}" ]; then
-    before_get_into_chroot
+    prepare_get_into_chroot
     customize_in_chroot
     cleanup
     make_iso
@@ -139,9 +141,10 @@ fi
 
 if [ "${Type}" = "all" ]; then
     prepare
+    mount_iso
     prepare_get_into_chroot
     customize_in_chroot
-    cleanup
+    #cleanup
     make_iso
     burn_usb
 fi
