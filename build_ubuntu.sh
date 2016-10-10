@@ -12,9 +12,10 @@
 Type=$1;
 CONFIG_FILE='./custom_ubuntu_iso.config'
 ORIGIN_ISO_FILE='ubuntu-16.04.1-desktop-amd64.iso'
-ISO_NAME='ubuntu-16.04-desktop-amd64-custom.iso'
-IMAGE_NAME='Codemao-ubuntu-0.1'
-PROJECT_PATH='/home/chao/livecdtmp/build-custom-ubuntu'
+ISO_NAME='ubuntu-16.04-desktop-amd64-custom.iso' IMAGE_NAME='Codemao-ubuntu-0.1' PROJECT_PATH='/home/dev/dev/ubuntu/livecdtmp/build-custom-ubuntu'
+start=`date +%s`
+ls -al > /dev/null 2>&1
+
 
 custom_echo() {
     echo -e "\e[1;31m $1 \e[0m"
@@ -31,10 +32,10 @@ mount_iso() {
 
 prepare_get_into_chroot() {
     custom_echo "geting into chroot..."
-    sudo cp /etc/apt/sources.list edit/etc/apt/
-    #sudo cp /etc/resolv.conf edit/etc/
-    #sudo mount -o bind /run/ edit/run/
-    #sudo mount -o bind /dev/ edit/dev/
+    sudo cp -r  ${PROJECT_PATH}/chroot_scripts/sources.list.d edit/etc/apt 
+    sudo cp -r ${PROJECT_PATH}/chroot_scripts/sources.list edit/etc/apt/
+    sudo mount -o bind /run/ edit/run/
+    sudo mount -o bind /dev/ edit/dev
     sudo cp -r ${PROJECT_PATH}/chroot_scripts ${PROJECT_PATH}/edit/root/
 }
 
@@ -49,11 +50,13 @@ customize_in_chroot() {
 
 prepare() {
     custom_echo "cleaning before make chroot environment..."
-    sudo umount mnt
-    sudo umount ${PROJECT_PATH}/mnt
-    sudo umount edit/dev
-    sudo umount edit/run
-    sudo umount edit/run
+    sudo umount -lf mnt
+    sudo umount -lf ${PROJECT_PATH}/mnt
+    sudo umount -lf edit/dev
+    sudo umount -lf edit/run
+    sudo umount -lf edit/proc
+    sudo umount -lf edit/sys
+    sudo umount -lf edit/dev/pts
     sudo rm -rf ${PROJECT_PATH}/${ISO_NAME}
     custom_echo "still execute, don't exit"
     sudo rm -rf mnt
@@ -63,7 +66,7 @@ prepare() {
 
 cleanup() {
     custom_echo "cleaning after making iso"
-    cleanup_in_chroot
+    #cleanup_in_chroot
     cleanup_outside
 }
 
@@ -75,7 +78,8 @@ cleanup_in_chroot() {
 cleanup_outside() {
     custom_echo "cleaning up outside..."
     aptitude clean
-    sudo umount edit/dev
+    sudo umount -lf edit/dev
+    sudo umount -lf edit/sys
 }
 
 make_iso() {
@@ -121,7 +125,7 @@ create_iso() {
 }
 
 burn_usb() { custom_echo "  burning to usb..."
-    #isohybrid ${PROJECT_PATH}/${ISO_NAME}
+    isohybrid ${PROJECT_PATH}/${ISO_NAME}
     lsblk -S |awk 'NR>1 {printf "%s %s %s\n",NR-1,$1,$5}'
     read -p "Select the disk to burn:" DISKNUM
     DISKNUM=$[$DISKNUM+1]
@@ -131,12 +135,25 @@ burn_usb() { custom_echo "  burning to usb..."
     custom_echo "buring usb complete..."
 }
 
+get_end_time() {
+    end=`date +%s`
+    dif=$[ end - start ]
+    custom_echo "Total Time: $dif"
+} 
+umount_all() {
+    sudo umount edit/proc
+    sudo umount edit/sys
+    sudo umount edit/dev/pts
+}
+
 if [ -z "${Type}" ]; then
+    prepare
+    mount_iso
     prepare_get_into_chroot
     customize_in_chroot
     cleanup
     make_iso
-    burn_usb
+    get_end_time
 fi
 
 if [ "${Type}" = "all" ]; then
@@ -144,9 +161,10 @@ if [ "${Type}" = "all" ]; then
     mount_iso
     prepare_get_into_chroot
     customize_in_chroot
-    #cleanup
+    cleanup
     make_iso
     burn_usb
+    get_end_time
 fi
 
 if [ "$Type" = "chroot" ]; then
@@ -155,6 +173,11 @@ if [ "$Type" = "chroot" ]; then
 fi
 
 if [ "$Type" = "iso" ]; then
+    make_iso
+fi
+
+if [ "$Type" = "makeiso" ]; then
+    cleanup
     make_iso
 fi
 
@@ -168,4 +191,8 @@ fi
 
 if [ "$Type" = "prepare" ]; then
     prepare
+fi
+
+if [ "$Type" = "cleanmount" ]; then
+    umount_all
 fi

@@ -2,26 +2,26 @@
 <!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
 <wallpapers>
   <wallpaper>
-    <name>Ubuntu</name>
-    <name xml:lang="az">Ubuntu</name>
-    <name xml:lang="ca@valencia">Ubuntu</name>
-    <name xml:lang="cs">Ubuntu</name>
-    <name xml:lang="en_GB">Ubuntu</name>
-    <name xml:lang="es">Ubuntu</name>
-    <name xml:lang="fr">Ubuntu</name>
-    <name xml:lang="jbo">lu ubuntus</name>
+    <name>Codemao</name>
+    <name xml:lang="az">Codemao</name>
+    <name xml:lang="ca@valencia">Codemao</name>
+    <name xml:lang="cs">Codemao</name>
+    <name xml:lang="en_GB">Codemao</name>
+    <name xml:lang="es">Codemao</name>
+    <name xml:lang="fr">Codemao</name>
+    <name xml:lang="jbo">lu codemaos</name>
     <name xml:lang="mr">उबून्टू</name>
-    <name xml:lang="ms">Ubuntu</name>
-    <name xml:lang="oc">Ubuntu</name>
-    <name xml:lang="pl">Ubuntu</name>
-    <name xml:lang="pt">Ubuntu</name>
-    <name xml:lang="sl">Ubuntu</name>
+    <name xml:lang="ms">Codemao</name>
+    <name xml:lang="oc">Codemao</name>
+    <name xml:lang="pl">Codemao</name>
+    <name xml:lang="pt">Codemao</name>
+    <name xml:lang="sl">Codemao</name>
     <name xml:lang="sr">Убунту</name>
-    <name xml:lang="tr">Ubuntu</name>
+    <name xml:lang="tr">Codemao</name>
     <name xml:lang="ug">ئۇبۇنتۇ</name>
-    <name xml:lang="uk">Ubuntu</name>
-    <name xml:lang="uz">Ubuntu</name>
-    <name xml:lang="zh_CN">Ubuntu</name>
+    <name xml:lang="uk">Codemao</name>
+    <name xml:lang="uz">Codemao</name>
+    <name xml:lang="zh_CN">Codemao</name>
     <filename>/usr/share/backgrounds/bcm1.jpeg</filename>
     <options>zoom</options>
     <pcolor>#2c001e</pcolor>
@@ -29,7 +29,7 @@
     <shade_type>solid</shade_type>
   </wallpaper>
   <wallpaper>
-    <name>Ubuntu Greyscale</name>
+    <name>Codemao Greyscale</name>
     <filename>/usr/share/backgrounds/Suru_Wallpaper_Desktop_4096x2304_Gray.png</filename>
     <options>zoom</options>
     <pcolor>#ececec</pcolor>

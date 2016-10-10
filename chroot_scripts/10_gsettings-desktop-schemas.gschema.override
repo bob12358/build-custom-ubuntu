@@ -1,3 +1,5 @@
 [org.gnome.desktop.default-applications.terminal]
 exec='x-terminal-emulator'
 exec-arg='-e'
+
+picture-uri='file:///usr/share/backgrounds/bcm1.jpeg'
