@@ -78,6 +78,8 @@ cleanup_in_chroot() {
 cleanup_outside() {
     custom_echo "cleaning up outside..."
     aptitude clean
+    sudo cp -r  ${PROJECT_PATH}/chroot_scripts/sources.list.d edit/etc/apt 
+    sudo cp -r ${PROJECT_PATH}/chroot_scripts/sources.list edit/etc/apt/
     sudo umount -lf edit/dev
     sudo umount -lf edit/sys
 }
@@ -124,7 +126,8 @@ create_iso() {
     sudo mkisofs -D -r -V "$IMAGE_NAME" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o ../$ISO_NAME .
 }
 
-burn_usb() { custom_echo "  burning to usb..."
+burn_usb() {
+    custom_echo "  burning to usb..."
     isohybrid ${PROJECT_PATH}/${ISO_NAME}
     lsblk -S |awk 'NR>1 {printf "%s %s %s\n",NR-1,$1,$5}'
     read -p "Select the disk to burn:" DISKNUM
@@ -195,4 +198,10 @@ fi
 
 if [ "$Type" = "cleanmount" ]; then
     umount_all
+fi
+
+if [ "$Type" = "newchroot" ]; then
+    prepare
+    mount_iso
+    prepare_get_into_chroot
 fi
